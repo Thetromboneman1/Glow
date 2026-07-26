@@ -53,3 +53,12 @@ Review by [@qbap](https://github.com/qbap) on ONE Jailbreak: https://onejailbrea
   <li>Make sure all inputs are correct, then click <strong>Run workflow</strong> to start the process.</li>
   <li>Wait for the build to finish. You can download <strong>Glow for Facebook</strong> app from the releases section of your forked repo. (If you can't find the releases section, go to your forked repo and add /releases to the URL, i.e., github.com/user/Glow/releases.)</li>
 </ol>
+
+## Fork Maintenance
+
+This fork tracks `dayanch96/Glow` through a weekly review-branch workflow and
+keeps the IPA build manually triggered. See
+[repository maintenance](docs/repository-maintenance.md) for synchronization,
+validation, secret-name, recovery, and ownership details.
+
+Maintenance status: active downstream fork. Last audit: 2026-07-26.

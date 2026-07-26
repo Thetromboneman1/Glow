@@ -1,0 +1,24 @@
+schema_version: 1
+last_audited: "2026-07-26"
+repository: Thetromboneman1/Glow
+upstream:
+  repository: dayanch96/Glow
+  branch: main
+  strategy: merge into review branch
+downstream:
+  branch: main
+  validation_script: scripts/validate-downstream.sh
+intentional_differences:
+  - .github/downstream-config-manifest.yml
+  - .github/workflows/main.yml
+  - .github/workflows/repository-validation.yml
+  - .github/workflows/upstream-sync.yml
+  - docs/repository-maintenance.md
+  - scripts/validate-downstream.sh
+preserved_contract:
+  build_trigger: workflow_dispatch
+  sensitive_input: ipa_url
+  output: draft GitHub release
+  source_assets: upstream stable release
+secret_references:
+  - GITHUB_TOKEN
