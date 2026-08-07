@@ -62,3 +62,19 @@ keeps the IPA build manually triggered. See
 validation, secret-name, recovery, and ownership details.
 
 Maintenance status: active downstream fork. Last audit: 2026-07-26.
+
+<!-- documentation-health:start -->
+## Current repository state
+
+![Glow system architecture](docs/architecture/glow-system-architecture.png)
+
+- **Default branch:** `main`
+- **Implementation fingerprint:** `aa223fb67ca3daf5`
+- **Detected structure:** Automation modules, GitHub Actions, Maintained documentation.
+- **Documentation contract:** editable diagram sources, committed PNG renderings,
+  resolved local image links, and generated state are checked on every commit.
+- **Refresh command:** `python3 scripts/documentation_health.py --write`
+
+See [repository state](docs/REPOSITORY_STATE.md) and the
+[architecture asset guide](docs/architecture/README.md).
+<!-- documentation-health:end -->
