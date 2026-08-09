@@ -1,0 +1,77 @@
+name: GlowLinkRouter
+options:
+  bundleIdPrefix: com.facebook.Facebook
+  deploymentTarget:
+    iOS: "15.1"
+settings:
+  base:
+    ARCHS: arm64
+    ONLY_ACTIVE_ARCH: NO
+    ENABLE_BITCODE: NO
+    CLANG_ENABLE_MODULES: YES
+    CLANG_ENABLE_OBJC_ARC: YES
+    APPLICATION_EXTENSION_API_ONLY: YES
+targets:
+  GlowLinkShare:
+    type: app-extension
+    platform: iOS
+    sources:
+      - Sources
+    info:
+      path: Info.plist
+      properties:
+        CFBundleDisplayName: Facebook Glow - Open Link
+        CFBundleName: GlowLinkShare
+        CFBundleShortVersionString: "1.0.0"
+        CFBundleVersion: "1"
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.share-services
+          NSExtensionPrincipalClass: GlowLinkShareViewController
+          NSExtensionAttributes:
+            NSExtensionActivationRule:
+              NSExtensionActivationSupportsWebURLWithMaxCount: 1
+              NSExtensionActivationSupportsText: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.facebook.Facebook.GlowLinkShare
+        PRODUCT_NAME: GlowLinkShare
+        SKIP_INSTALL: YES
+        GENERATE_INFOPLIST_FILE: NO
+        CODE_SIGNING_ALLOWED: NO
+        CODE_SIGNING_REQUIRED: NO
+        CODE_SIGN_IDENTITY: ""
+  GlowSafariRedirect:
+    type: app-extension
+    platform: iOS
+    sources:
+      - SafariExtensionSources
+      - path: SafariExtensionResources
+        buildPhase: resources
+    info:
+      path: SafariExtension-Info.plist
+      properties:
+        CFBundleDisplayName: Open Facebook in Glow
+        CFBundleName: GlowSafariRedirect
+        CFBundleShortVersionString: "1.0.0"
+        CFBundleVersion: "1"
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.Safari.web-extension
+          NSExtensionPrincipalClass: GlowSafariWebExtensionHandler
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.facebook.Facebook.GlowSafariRedirect
+        PRODUCT_NAME: GlowSafariRedirect
+        SKIP_INSTALL: YES
+        GENERATE_INFOPLIST_FILE: NO
+        CODE_SIGNING_ALLOWED: NO
+        CODE_SIGNING_REQUIRED: NO
+        CODE_SIGN_IDENTITY: ""
+schemes:
+  GlowLinkShare:
+    build:
+      targets:
+        GlowLinkShare: all
+  GlowSafariRedirect:
+    build:
+      targets:
+        GlowSafariRedirect: all

@@ -1,0 +1,46 @@
+name: Link Router
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/link-router.yml"
+      - "LinkRouter/**"
+      - "scripts/embed-glow-link-router.sh"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/link-router.yml"
+      - "LinkRouter/**"
+      - "scripts/embed-glow-link-router.sh"
+
+permissions:
+  contents: read
+
+jobs:
+  test-and-build:
+    runs-on: macos-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install project generator
+        run: brew install xcodegen
+
+      - name: Test routes
+        run: LinkRouter/test.sh
+
+      - name: Generate extension project
+        run: xcodegen generate --spec LinkRouter/project.yml --project LinkRouter
+
+      - name: Build extensions without signing
+        run: |
+          for scheme in GlowLinkShare GlowSafariRedirect; do
+            xcodebuild \
+              -project LinkRouter/GlowLinkRouter.xcodeproj \
+              -scheme "$scheme" \
+              -configuration Release \
+              -sdk iphoneos \
+              -derivedDataPath LinkRouter/.build \
+              CODE_SIGNING_ALLOWED=NO \
+              build
+          done

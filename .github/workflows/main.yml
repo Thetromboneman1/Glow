@@ -57,10 +57,10 @@ jobs:
           fi
 
       - name: Install Dependencies
-        run: brew install make ldid
+        run: brew install make ldid xcodegen
 
       - name: Set PATH environment variable
-        run: echo "$(brew --prefix make)/libexec/gnubin" >> $GITHUB_PATH
+        run: echo "$(brew --prefix make)/libexec/gnubin" >> "$GITHUB_PATH"
 
       - name: Install cyan
         run: pipx install --force https://github.com/asdfzxcvbn/pyzule-rw/archive/main.zip
@@ -84,12 +84,15 @@ jobs:
             exit 1
           fi
 
-          echo "GLOW_TAG=$tag_name" >> $GITHUB_ENV
+          echo "GLOW_TAG=$tag_name" >> "$GITHUB_ENV"
           echo "Downloading: $deb_url"
-          wget "$deb_url" --no-verbose -O ${{ github.workspace }}/glow_fb.deb
+          wget "$deb_url" --no-verbose -O "${{ github.workspace }}/glow_fb.deb"
 
       - name: Inject tweaks into IPA
-        run: cyan -i facebook.ipa -o Glow_FB_${{ env.GLOW_TAG }}.ipa -uwef glow_fb.deb -n "${{ inputs.display_name }}" -b ${{ inputs.bundle_id }} -s
+        env:
+          BUNDLE_ID: ${{ inputs.bundle_id }}
+          DISPLAY_NAME: ${{ inputs.display_name }}
+        run: cyan -i facebook.ipa -o "Glow_FB_${GLOW_TAG}.ipa" -uwef glow_fb.deb -n "$DISPLAY_NAME" -b "$BUNDLE_ID" -s
 
       - name: Strip embedded Swift dylibs
         run: |
@@ -99,6 +102,13 @@ jobs:
           zip -qr ../Glow_FB_${{ env.GLOW_TAG }}_clean.ipa Payload
           cd ..
           mv Glow_FB_${{ env.GLOW_TAG }}_clean.ipa Glow_FB_${{ env.GLOW_TAG }}.ipa
+
+      - name: Embed destination-preserving link router
+        run: |
+          main/scripts/embed-glow-link-router.sh \
+            Glow_FB_${{ env.GLOW_TAG }}.ipa \
+            Glow_FB_${{ env.GLOW_TAG }}_with_router.ipa
+          mv Glow_FB_${{ env.GLOW_TAG }}_with_router.ipa Glow_FB_${{ env.GLOW_TAG }}.ipa
 
       - uses: softprops/action-gh-release@v2.0.1
         with:

@@ -53,3 +53,16 @@ Review by [@qbap](https://github.com/qbap) on ONE Jailbreak: https://onejailbrea
   <li>Make sure all inputs are correct, then click <strong>Run workflow</strong> to start the process.</li>
   <li>Wait for the build to finish. You can download <strong>Glow for Facebook</strong> app from the releases section of your forked repo. (If you can't find the releases section, go to your forked repo and add /releases to the URL, i.e., github.com/user/Glow/releases.)</li>
 </ol>
+
+## Opening Facebook links in Glow
+
+Builds created by the workflow include **Open Facebook in Glow**, a Safari Web
+Extension that preserves the selected post, Reel, profile, or Watch URL when
+handing it to Facebook. Enable it in **Settings → Apps → Safari → Extensions**
+and grant access to the listed Facebook domains. The Share Sheet also includes
+**Facebook Glow - Open Link** as an explicit fallback.
+
+The router validates Facebook-family hosts and uses Facebook's registered
+`fb-www-link://www_link/?url=...` route when page metadata does not provide a
+safe native route. Sideloaded builds cannot claim Meta's Universal Links, so a
+brief Safari handoff and a first-use confirmation prompt may still appear.

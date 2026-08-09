@@ -1,0 +1,4 @@
+.build/
+GlowLinkRouter.xcodeproj/
+Info.plist
+SafariExtension-Info.plist

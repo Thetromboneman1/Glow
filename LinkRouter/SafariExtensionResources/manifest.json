@@ -1,0 +1,44 @@
+{
+  "manifest_version": 3,
+  "name": "Open Facebook in Glow",
+  "description": "Hands Facebook web links to the installed Facebook Glow app.",
+  "version": "1.0.0",
+  "content_scripts": [
+    {
+      "matches": [
+        "http://*.facebook.com/*",
+        "https://*.facebook.com/*",
+        "http://facebook.com/*",
+        "https://facebook.com/*",
+        "http://*.fb.com/*",
+        "https://*.fb.com/*",
+        "http://fb.com/*",
+        "https://fb.com/*",
+        "http://fb.me/*",
+        "https://fb.me/*",
+        "http://fb.watch/*",
+        "https://fb.watch/*",
+        "http://fbwat.ch/*",
+        "https://fbwat.ch/*"
+      ],
+      "js": ["redirect.js"],
+      "run_at": "document_end"
+    }
+  ],
+  "host_permissions": [
+    "http://*.facebook.com/*",
+    "https://*.facebook.com/*",
+    "http://facebook.com/*",
+    "https://facebook.com/*",
+    "http://*.fb.com/*",
+    "https://*.fb.com/*",
+    "http://fb.com/*",
+    "https://fb.com/*",
+    "http://fb.me/*",
+    "https://fb.me/*",
+    "http://fb.watch/*",
+    "https://fb.watch/*",
+    "http://fbwat.ch/*",
+    "https://fbwat.ch/*"
+  ]
+}
