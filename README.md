@@ -64,6 +64,7 @@ validation, secret-name, recovery, and ownership details.
 Maintenance status: active downstream fork. Last audit: 2026-07-26.
 
 <!-- documentation-health:start -->
+
 ## Current repository state
 
 ![Glow system architecture](docs/architecture/glow-system-architecture.png)
