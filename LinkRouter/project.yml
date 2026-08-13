@@ -22,7 +22,7 @@ targets:
       properties:
         CFBundleDisplayName: Facebook Glow - Open Link
         CFBundleName: GlowLinkShare
-        CFBundleShortVersionString: "1.0.0"
+        CFBundleShortVersionString: "1.0.1"
         CFBundleVersion: "1"
         NSExtension:
           NSExtensionPointIdentifier: com.apple.share-services
@@ -52,7 +52,7 @@ targets:
       properties:
         CFBundleDisplayName: Open Facebook in Glow
         CFBundleName: GlowSafariRedirect
-        CFBundleShortVersionString: "1.0.0"
+        CFBundleShortVersionString: "1.0.1"
         CFBundleVersion: "1"
         NSExtension:
           NSExtensionPointIdentifier: com.apple.Safari.web-extension

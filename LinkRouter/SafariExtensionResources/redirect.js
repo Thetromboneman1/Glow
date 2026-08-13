@@ -63,7 +63,25 @@
   function canonicalWebURL() {
     const canonical = document.querySelectorAll('link[rel="canonical"]')[0]?.getAttribute("href");
     const openGraph = document.querySelectorAll('meta[property="og:url"]')[0]?.getAttribute("content");
-    return validatedWebURL(window.location.href) || validatedWebURL(canonical) || validatedWebURL(openGraph);
+    const currentURL = validatedWebURL(window.location.href);
+    const canonicalURL = validatedWebURL(canonical);
+    const openGraphURL = validatedWebURL(openGraph);
+    if (!currentURL) {
+      return canonicalURL || openGraphURL;
+    }
+
+    const isShareWrapper = /^\/share\/(?:p|r|v)(?:\/|$)/i.test(currentURL.pathname);
+    if (!isShareWrapper) {
+      return currentURL;
+    }
+
+    const resolvedDestination = [canonicalURL, openGraphURL].find(
+      (candidate) =>
+        candidate &&
+        candidate.pathname !== "/" &&
+        !/^\/share\/(?:p|r|v)(?:\/|$)/i.test(candidate.pathname)
+    );
+    return resolvedDestination || currentURL;
   }
 
   function wwwLinkRoute() {

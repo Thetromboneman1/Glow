@@ -62,9 +62,24 @@ assert.equal(
 );
 assert.equal(
   redirectFor("https://www.facebook.com/share/r/abc/?mibextid=xyz", {
-    nativeRoutes: ["https://evil.example/payload"]
+    nativeRoutes: ["https://evil.example/payload"],
+    canonical: "https://www.facebook.com/reel/123"
   }),
-  "fb-www-link://www_link/?url=https%3A%2F%2Fwww.facebook.com%2Fshare%2Fr%2Fabc%2F%3Fmibextid%3Dxyz"
+  "fb-www-link://www_link/?url=https%3A%2F%2Fwww.facebook.com%2Freel%2F123"
+);
+assert.equal(
+  redirectFor("https://www.facebook.com/share/v/19RsNqHveR/?mibextid=wwXIfr", {
+    canonical: "https://www.facebook.com/MEMES.of.the.NFL/posts/1467604858743867/",
+    openGraph: "https://www.facebook.com/MEMES.of.the.NFL/posts/1467604858743867/"
+  }),
+  "fb-www-link://www_link/?url=https%3A%2F%2Fwww.facebook.com%2FMEMES.of.the.NFL%2Fposts%2F1467604858743867%2F"
+);
+assert.equal(
+  redirectFor("https://www.facebook.com/share/v/abc", {
+    canonical: "https://www.facebook.com/",
+    openGraph: "https://www.facebook.com/share/v/abc"
+  }),
+  "fb-www-link://www_link/?url=https%3A%2F%2Fwww.facebook.com%2Fshare%2Fv%2Fabc"
 );
 assert.equal(redirectFor("https://facebook.com.example/reel/123"), undefined);
 assert.equal(redirectFor("https://notfacebook.com/reel/123"), undefined);
