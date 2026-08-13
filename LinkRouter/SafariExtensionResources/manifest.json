@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Open Facebook in Glow",
   "description": "Hands Facebook web links to the installed Facebook Glow app.",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "content_scripts": [
     {
       "matches": [
@@ -22,7 +22,7 @@
         "https://fbwat.ch/*"
       ],
       "js": ["redirect.js"],
-      "run_at": "document_end"
+      "run_at": "document_start"
     }
   ],
   "host_permissions": [

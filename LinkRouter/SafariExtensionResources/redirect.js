@@ -60,12 +60,19 @@
     return undefined;
   }
 
-  function canonicalWebURL() {
-    const canonical = document.querySelectorAll('link[rel="canonical"]')[0]?.getAttribute("href");
-    const openGraph = document.querySelectorAll('meta[property="og:url"]')[0]?.getAttribute("content");
-    const currentURL = validatedWebURL(window.location.href);
-    const canonicalURL = validatedWebURL(canonical);
-    const openGraphURL = validatedWebURL(openGraph);
+  function canonicalWebURL(sourceDocument = document) {
+    const canonical = sourceDocument.querySelectorAll('link[rel="canonical"]')[0]?.getAttribute("href");
+    const openGraph = sourceDocument
+      .querySelectorAll('meta[property="og:url"]')[0]
+      ?.getAttribute("content");
+    return canonicalDestination(
+      validatedWebURL(window.location.href),
+      validatedWebURL(canonical),
+      validatedWebURL(openGraph)
+    );
+  }
+
+  function canonicalDestination(currentURL, canonicalURL, openGraphURL) {
     if (!currentURL) {
       return canonicalURL || openGraphURL;
     }
@@ -84,23 +91,51 @@
     return resolvedDestination || currentURL;
   }
 
-  function wwwLinkRoute() {
-    const webURL = canonicalWebURL();
+  function wwwLinkRoute(webURL = canonicalWebURL()) {
     return webURL
       ? `fb-www-link://www_link/?url=${encodeURIComponent(webURL.href)}`
       : undefined;
+  }
+
+  function redirect(target) {
+    if (!target) {
+      return false;
+    }
+    window.location.replace(target);
+    return true;
+  }
+
+  async function resolveShareWrapper(currentURL) {
+    window.stop();
+    try {
+      const response = await window.fetch(currentURL.href, {
+        cache: "no-store",
+        credentials: "include"
+      });
+      if (!response.ok) {
+        throw new Error(`Facebook returned HTTP ${response.status}`);
+      }
+      const parsedDocument = new DOMParser().parseFromString(await response.text(), "text/html");
+      redirect(wwwLinkRoute(canonicalWebURL(parsedDocument)));
+    } catch (_error) {
+      redirect(wwwLinkRoute(currentURL));
+    }
   }
 
   function redirectIfReady() {
     if (window.sessionStorage.getItem(marker) === "attempted") {
       return true;
     }
-    const target = nativeRouteFromPage() || wwwLinkRoute();
-    if (!target) {
+    const currentURL = validatedWebURL(window.location.href);
+    if (!currentURL) {
       return false;
     }
     window.sessionStorage.setItem(marker, "attempted");
-    window.location.replace(target);
+    if (/^\/share\/(?:p|r|v)(?:\/|$)/i.test(currentURL.pathname)) {
+      void resolveShareWrapper(currentURL);
+      return true;
+    }
+    redirect(nativeRouteFromPage() || wwwLinkRoute(currentURL));
     return true;
   }
 
