@@ -16,13 +16,16 @@ const manifest = JSON.parse(
   )
 );
 
-assert.equal(manifest.version, "1.0.2");
+assert.equal(manifest.version, "1.0.3");
 assert.equal(manifest.content_scripts[0].run_at, "document_start");
 
 async function redirectFor(href, options = {}) {
   const url = new URL(href);
   let redirected;
   const storage = new Map();
+  if (options.legacyAttempted) {
+    storage.set(`glow-redirect:${href}`, "attempted");
+  }
   function makeDocument(source = options) {
     return {
       querySelectorAll(selector) {
@@ -98,6 +101,7 @@ assert.equal(
 );
 assert.equal(
   await redirectFor("https://www.facebook.com/share/v/19RsNqHveR/?mibextid=wwXIfr", {
+    legacyAttempted: true,
     fetched: {
       canonical: "https://www.facebook.com/MEMES.of.the.NFL/posts/1467604858743867/",
       openGraph: "https://www.facebook.com/MEMES.of.the.NFL/posts/1467604858743867/"

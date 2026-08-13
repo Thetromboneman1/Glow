@@ -79,4 +79,4 @@ rm -f "$output_parent/$output_name"
 )
 unzip -tq "$output_parent/$output_name"
 
-printf 'Embedded Glow Link Router 1.0.2 into %s (%s)\n' "$bundle_id" "$version"
+printf 'Embedded Glow Link Router 1.0.3 into %s (%s)\n' "$bundle_id" "$version"

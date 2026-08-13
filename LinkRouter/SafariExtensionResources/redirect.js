@@ -123,14 +123,15 @@
   }
 
   function redirectIfReady() {
-    if (window.sessionStorage.getItem(marker) === "attempted") {
+    const lastAttempt = Number(window.sessionStorage.getItem(marker));
+    if (Number.isFinite(lastAttempt) && Date.now() - lastAttempt < 10000) {
       return true;
     }
     const currentURL = validatedWebURL(window.location.href);
     if (!currentURL) {
       return false;
     }
-    window.sessionStorage.setItem(marker, "attempted");
+    window.sessionStorage.setItem(marker, String(Date.now()));
     if (/^\/share\/(?:p|r|v)(?:\/|$)/i.test(currentURL.pathname)) {
       void resolveShareWrapper(currentURL);
       return true;
