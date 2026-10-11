@@ -71,7 +71,7 @@ Maintenance status: active downstream fork. Last audit: 2026-07-26.
 
 - **Default branch:** `main`
 - **Implementation fingerprint:** `aa223fb67ca3daf5`
-- **Detected structure:** Automation modules, GitHub Actions, Maintained documentation.
+- **Detected structure:** Automation modules, GitHub Actions, Tests and validation, Maintained documentation.
 - **Documentation contract:** editable diagram sources, committed PNG renderings,
   resolved local image links, and generated state are checked on every commit.
 - **Refresh command:** `python3 scripts/documentation_health.py --write`
