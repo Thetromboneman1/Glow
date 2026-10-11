@@ -26,3 +26,6 @@ jobs:
 
       - name: Validate downstream contract
         run: scripts/validate-downstream.sh
+
+      - name: Test upstream synchronization controls
+        run: python3 .github/tests/test_upstream_sync_workflow.py
