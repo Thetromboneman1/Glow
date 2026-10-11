@@ -28,6 +28,7 @@ the documentation record advances with implementation changes.
 ### Operations
 
 - GitHub Actions
+- Tests and validation
 - Maintained documentation
 
 ## Update policy

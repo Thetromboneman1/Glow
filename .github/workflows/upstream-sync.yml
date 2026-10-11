@@ -41,7 +41,15 @@ jobs:
         run: |
           set -euo pipefail
           base=$(git rev-parse HEAD)
-          git fetch --no-tags "https://github.com/${UPSTREAM_REPOSITORY}.git" main
+          for attempt in 1 2 3; do
+            if git fetch --no-tags "https://github.com/${UPSTREAM_REPOSITORY}.git" main; then
+              break
+            fi
+            if [[ "$attempt" == 3 ]]; then
+              exit 1
+            fi
+            sleep $((2 ** (attempt - 1)))
+          done
           upstream=$(git rev-parse FETCH_HEAD)
           changed=true; conflict=false; conflicts=""; conflicts_b64=""; tree=""
           if git merge-base --is-ancestor "$upstream" "$base"; then
@@ -86,7 +94,15 @@ jobs:
         run: |
           set -euo pipefail
           [[ "$UPSTREAM_SHA" =~ ^[0-9a-f]{40}$ && "$EXPECTED_TREE" =~ ^[0-9a-f]{40}$ ]]
-          git fetch --no-tags "https://github.com/${UPSTREAM_REPOSITORY}.git" "$UPSTREAM_SHA"
+          for attempt in 1 2 3; do
+            if git fetch --no-tags "https://github.com/${UPSTREAM_REPOSITORY}.git" "$UPSTREAM_SHA"; then
+              break
+            fi
+            if [[ "$attempt" == 3 ]]; then
+              exit 1
+            fi
+            sleep $((2 ** (attempt - 1)))
+          done
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git merge --no-edit "$UPSTREAM_SHA"
@@ -118,18 +134,60 @@ jobs:
           [[ "$BASE_SHA" =~ ^[0-9a-f]{40}$ && "$UPSTREAM_SHA" =~ ^[0-9a-f]{40}$ && "$EXPECTED_TREE" =~ ^[0-9a-f]{40}$ ]]
           actual=$(git ls-remote origin "refs/heads/${DOWNSTREAM_BRANCH}" | awk '{print $1}')
           test "$actual" = "$BASE_SHA"
-          git fetch --no-tags "https://github.com/${UPSTREAM_REPOSITORY}.git" "$UPSTREAM_SHA"
+          for attempt in 1 2 3; do
+            if git fetch --no-tags "https://github.com/${UPSTREAM_REPOSITORY}.git" "$UPSTREAM_SHA"; then
+              break
+            fi
+            if [[ "$attempt" == 3 ]]; then
+              exit 1
+            fi
+            sleep $((2 ** (attempt - 1)))
+          done
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git merge --no-edit "$UPSTREAM_SHA"
           test "$(git rev-parse 'HEAD^{tree}')" = "$EXPECTED_TREE"
-          branch="automation/upstream-sync-${UPSTREAM_SHA:0:12}-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
-          git push --set-upstream origin "HEAD:refs/heads/$branch"
+          expected_parents=$(git show -s --format=%P HEAD)
+          [[ "$expected_parents" =~ ^[0-9a-f]{40}(\ [0-9a-f]{40})*$ ]]
+          branch="automation/upstream-sync-${UPSTREAM_SHA}-${BASE_SHA}"
+          existing=$(gh pr list --head "$branch" --base "$DOWNSTREAM_BRANCH" --state open \
+            --json url,isCrossRepository --jq '[.[] | select(.isCrossRepository == false)][0].url // empty')
+          if [[ -n "$existing" ]]; then
+            existing_base=$(gh pr view "$existing" --json baseRefOid --jq .baseRefOid)
+            existing_head=$(gh pr view "$existing" --json headRefOid --jq .headRefOid)
+            existing_cross_repo=$(gh pr view "$existing" --json isCrossRepository --jq .isCrossRepository)
+            [[ "$existing_base" =~ ^[0-9a-f]{40}$ && "$existing_head" =~ ^[0-9a-f]{40}$ ]]
+            test "$existing_cross_repo" = "false"
+            test "$existing_base" = "$BASE_SHA"
+            origin_head=$(git ls-remote --heads origin "refs/heads/${branch}" | awk '{print $1}')
+            test "$origin_head" = "$existing_head"
+            git fetch --no-tags origin "$existing_head"
+            test "$(git rev-parse "${existing_head}^{tree}")" = "$EXPECTED_TREE"
+            test "$(git show -s --format=%P "$existing_head")" = "$expected_parents"
+            echo "Existing synchronization PR: $existing" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          published_head=$(git ls-remote --heads origin "refs/heads/${branch}" | awk '{print $1}')
+          if [[ -n "$published_head" ]]; then
+            [[ "$published_head" =~ ^[0-9a-f]{40}$ ]]
+            git fetch --no-tags origin "$published_head"
+            test "$(git rev-parse "${published_head}^{tree}")" = "$EXPECTED_TREE"
+            test "$(git show -s --format=%P "$published_head")" = "$expected_parents"
+          else
+            git push --set-upstream origin "HEAD:refs/heads/$branch"
+            published_head=$(git rev-parse HEAD)
+          fi
           url=$(gh pr create --head "$branch" --base "$DOWNSTREAM_BRANCH" \
             --title "chore: sync dayanch96/Glow main" \
             --body "Merges \`${UPSTREAM_REPOSITORY}@${UPSTREAM_SHA}\`. Validated base: \`${BASE_SHA}\`.")
-          if [[ "$(gh pr view "$url" --json baseRefOid --jq .baseRefOid)" != "$BASE_SHA" ]]; then
+          pr_base=$(gh pr view "$url" --json baseRefOid --jq .baseRefOid)
+          pr_head=$(gh pr view "$url" --json headRefOid --jq .headRefOid)
+          if [[ "$pr_base" != "$BASE_SHA" ]]; then
             gh pr close "$url" --delete-branch --comment "Closed automatically because the base branch advanced after validation."
+            exit 1
+          fi
+          if [[ "$pr_head" != "$published_head" ]]; then
+            gh pr close "$url" --comment "Closed automatically because the review branch changed after the validated commit was published."
             exit 1
           fi
 
